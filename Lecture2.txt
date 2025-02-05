@@ -1,0 +1,79 @@
+lecture2.txt
+
+TITLE: Consensus Basics
+
+OVERVIEW:
+- This lecture continues exploring how to build a “computer in the sky,” focusing on the consensus layer of blockchain protocols.
+- Key themes:
+  1) Basic terminology (validators, transactions, blocks, consensus vs. execution).
+  2) The State Machine Replication (SMR) problem, with definitions of consistency and liveness.
+  3) How different fault and network assumptions (crash vs. Byzantine, synchronous vs. asynchronous) affect consensus feasibility.
+  4) Introduction to a roadmap: solving SMR under gradually harder and more realistic settings.
+
+1. BLOCKCHAIN CONTEXT
+   - Recall the three-layer mental model:
+     • Top layer: Applications (smart contracts).
+     • Bottom layer: The Internet.
+     • Middle layer: The blockchain protocol (e.g., Ethereum, Solana).
+   - The blockchain protocol resembles an operating system for this global, decentralized computer:
+     • Acts as a “master program,” determining which smart contract code executes at a given time.
+     • Exports a virtual machine (VM) to programmers, who can write applications as if running on a single physical machine.
+   - Physical machines (validators) coordinate via the protocol to simulate one decentralized computer, suitable for tasks like maintaining ownership records.
+
+2. BASIC TERMINOLOGY
+   - Validator (or “node”): A physical machine running the blockchain protocol. 
+     • Typically many validators operate the network (e.g., 22 or 100 in a permissioned setting).
+   - Transaction (tx): A user-submitted instruction or action (e.g., sending a payment, invoking a smart contract). 
+     • The fundamental unit of computational activity in a blockchain.
+   - Block: A batch (sequence) of transactions. 
+     • For simplicity, we may assume unbounded size or think of something like 100 transactions per block.
+
+3. RESPONSIBILITIES OF A BLOCKCHAIN PROTOCOL
+   - Consensus (deciding on a chain of blocks):
+     • The protocol must reach agreement on the total ordering of blocks (and thus transactions).
+     • Ensures all validators see the same global history, preventing conflicts about the chain state (e.g., who owns what).
+     • Viewed as a “sequencer” that orders transactions and blocks.
+   - Execution (processing transactions in the VM):
+     • Once a block is added to the chain, validators execute the block’s transactions on their local copies of the virtual machine.
+     • The state of each validator’s VM is updated accordingly.
+
+4. STATE MACHINE REPLICATION (SMR)
+   - SMR is the consensus problem most relevant to a perpetually-running blockchain protocol.
+   - A state machine can be thought of like a deterministic transition system:
+     • “State” = current data in the blockchain’s VM.
+     • “Input” = a transaction or instruction, triggering a state transition.
+   - The SMR Protocol:
+     • Clients submit transactions to validators.
+     • Validators each maintain an append-only log (chain) of finalized transactions.
+     • A correct solution must satisfy:
+       1) Consistency: All validators’ logs reflect the same transaction sequence (no forks).
+       2) Liveness: Every valid transaction submitted by a client eventually appears in all validators’ logs.
+
+5. WHY IS CONSENSUS HARD?
+   - Key obstacles:
+     • Faulty validators: 
+       - Crash faults (“easy mode”): A validator may stop working permanently.
+       - Byzantine faults (“hard mode”): A validator can behave arbitrarily or maliciously.
+     • Unreliable network: 
+       - Synchronous (“easy mode”): There is a known maximum time for message delivery.
+       - Asynchronous (“hard mode”): Delivery times can be arbitrarily long, though eventually every message arrives.
+   - Even a simple protocol (e.g., a single “leader” proposing blocks every second) can break if the leader crashes or messages get delayed.
+
+6. SMR UNDER VARIOUS ASSUMPTIONS
+   - We will tackle increasingly challenging consensus settings:
+     Lecture 3: Crash faults in a synchronous network.
+     Lecture 4: Crash faults in a partially synchronous (practically relevant) network (e.g., Paxos/Raft).
+     Lecture 6: Byzantine faults in a partially synchronous network (e.g., Tendermint).
+   - Expect trade-offs: no single “perfect” protocol for all fault models and network conditions.
+   - Different protocols often embody different design choices and performance characteristics.
+
+7. SECURITY THRESHOLDS (TEASER)
+   - Another dimension: How many validators can fail or be malicious before consensus becomes impossible?
+   - Typical thresholds are 50% (majority) or 33% (two-thirds supermajority), depending on assumptions.
+   - In practice, a blockchain protocol requires a majority of validators to behave honestly and reliably.
+
+KEY TAKEAWAYS:
+- Consensus is central to blockchains: it orders transactions so that all validators maintain a consistent view of the blockchain’s state.
+- SMR (State Machine Replication) is the specific form of consensus for perpetually running systems like blockchains.
+- Different fault and network assumptions define the difficulty of designing and guaranteeing consensus.
+- Real-world protocols make tough choices about performance, fault tolerance, and assumptions—there is no “one-size-fits-all” solution.

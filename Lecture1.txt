@@ -1,0 +1,74 @@
+TITLE: Introduction / Course Logistics / Mental Models
+
+OVERVIEW:
+- The lecture introduces the concept of a “computer in the sky”—a shared global virtual computer (blockchain)—and provides an analogy to both operating systems and the Internet.  
+- Covers why we need blockchains, core mental models, and an overview of the course’s structure and expectations.
+
+1. MOTIVATION & MENTAL MODELS FOR BLOCKCHAINS
+   - What does this technology achieve that we didn’t already have?
+   - Like the Internet provides a global infrastructure for communication, a blockchain protocol provides a global infrastructure for computation—an ownerless “computer in the sky.”
+   - Think of a blockchain either as:
+     1) A general-purpose computer (like your laptop) where “hardware” is replaced by an Internet-based, decentralized platform.  
+     2) The Internet with a virtual computer on top, shared by everyone.
+
+2. EXAMPLE APPLICATION: OWNERSHIP OF DIGITAL ASSETS
+   - Goes beyond simple cryptocurrencies—imagine tickets, digital art, or any data that requires strong ownership guarantees.
+   - Traditional computing or the Internet alone do not provide a robust notion of “ownership” by default.
+
+3. ANALOGIES & LAYERED MODELS
+
+   3a. Operating Systems (OS)
+   - A computer has layers:
+     - Top: applications (e.g., Word, Photoshop).
+     - Bottom: hardware (physical machine).
+     - Middle: OS (master program, abstracts hardware to applications as a “virtual machine”).
+   - Apps see a standard interface (the OS’s virtual machine). The OS mediates access to physical resources.
+   - OS is not good enough alone for decentralized digital ownership—it's typically a single-machine setup.
+
+   3b. The Internet
+   - Layers:
+     - Top: application layer (web apps, email).
+     - Bottom: physical network hardware (routers, cables, etc.).
+     - Middle: IP (Internet Protocol) for point-to-point data delivery.
+   - Shared and decentralized but only designed to move data around—stateless by design. Not sufficient for maintaining a global state like asset ownership.
+
+   3c. Blockchain Protocols (“Web3”)
+   - Sits on top of the Internet.
+   - Provides a shared virtual machine (like an OS for the entire network).
+   - Many diverse physical machines coordinate to simulate the logical behavior of one machine.
+   - Suitable for decentralized, tamper-resistant state updates (like tracking who owns what).
+
+4. COURSE STRUCTURE AND GOALS
+   - Goal: Understand how to build this “computer in the sky” (blockchain protocol).
+   - Three parts (about nine lectures each):
+
+     Part I: Basic design (without performance focus, with permissioned infrastructure).
+       - You’ll see classic distributed computing: consensus, fault tolerance, virtual machine execution.
+       - Even with a fixed set of participants, ensuring correctness under faults is challenging.
+
+     Part II: Performance/scaling.
+       - Aims to improve throughput and capacity while retaining security.
+       - Topics: rollups, SNARKs, light clients, bridges, data availability, fee mechanisms, etc.
+
+     Part III: Permissionless protocols.
+       - Machines can join/leave at will (like in Bitcoin or Ethereum).
+       - Topics: proof-of-work vs. proof-of-stake, sybil-resistance, incentives, mempools, MEV, etc.
+
+5. BLOCKCHAINS VS. CRYPTOCURRENCIES
+   - Blockchains are not solely about digital money; cryptocurrencies are just one application.
+   - The course treats them as an enabling mechanism (e.g., for incentives) rather than the central focus.
+
+6. PRINCIPLES OVER PROTOCOLS
+   - Similar to an operating systems course: emphasize broad design choices, with real protocols (like Bitcoin and Ethereum) as case studies.
+   - The field combines distributed systems, cryptography, and economics, forming a new area in computer science.
+
+7. DELIVERABLES & LOGISTICS
+   - (50%) Open-ended team project (teams of 3 or 4).
+   - (40%) Homework assignments (~8 or 9).
+   - (10%) Participation.
+   - No exams.
+
+KEY TAKEAWAYS:
+- A blockchain protocol is an intermediate layer that uses many independent machines to simulate a shared, global computer.  
+- It’s decentralized and tamper-resistant, making it suitable for digital assets and more.  
+- The course will dive into how to build and scale these protocols, culminating in permissionless systems.
