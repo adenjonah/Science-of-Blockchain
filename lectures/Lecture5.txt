@@ -102,32 +102,56 @@ Issue 3: Byzantine validators could lie about messages received from other valid
 Key Ideas in Tendermint
 ------------------------
 
-Idea #1: Every validator signs every message it sends.
-- Assume all validators know each other's public keys, IDs, and IP addresses.
-- This is called a "public key infrastructure" (PKI) assumption.
+Idea #1: Digital Signatures for Message Authentication
+- Every validator must digitally sign every message it sends
+- Example: If validator V1 sends a proposal, it includes signature Sig_V1(proposal)
+- All validators know each other's:
+  * Public keys (to verify signatures)
+  * Unique IDs 
+  * Network addresses
+- This prevents impersonation attacks where a Byzantine validator pretends to be someone else
 
-Recall: In Protocol C, it's crucial that every write quorum (size > n/2) intersects every subsequent read quorum (size > n/2).
-- Reason: Once a leader is in a position to make a proposal, it must be up-to-date on all transactions already finalized by some non-faulty validator.
+Understanding Quorum Intersection (Background):
+- In Protocol C, we needed write quorums (>n/2) to overlap with read quorums (>n/2)
+- Example: If 5 validators total, need at least 3 validators in each quorum
+  * Write quorum: {V1, V2, V3}
+  * Read quorum: {V2, V3, V4} 
+  * They overlap at {V2, V3}, ensuring consistency
 
-Fix: Ensure that every read quorum and write quorum overlap in at least one non-faulty validator.
-- Can count on this non-faulty validator to keep the leader up-to-date.
+Idea #2: Larger Quorums for Byzantine Fault Tolerance
+- Assume < n/3 validators can be Byzantine (necessary for security)
+- Increase all quorum sizes from >n/2 to >2n/3
+- Example with 9 validators (where up to 2 can be Byzantine):
+  * Old quorum size: >4 validators
+  * New quorum size: >6 validators
+  * Any two quorums of size 7 must overlap in at least 5 validators
+  * Even if 2 validators in the overlap are Byzantine, still have 3 honest ones
 
-Idea #2: 
-- Assume < n/3 validators are Byzantine. [Necessary]
-- Increase all quorum sizes to > 2n/3 validators.
-- Note: Given this assumption, it does not immediately threaten liveness.
-- Updated quorum intersection property: If S, T are quorums, |S|, |T| > 2n/3, then S, T overlap in > n/3 validators.
-- Consequence: Any two quorums have a non-faulty validator in common.
-- Bonus: Can't have write quorums for two different chains in the same view (despite equivocating leader, Byzantine acknowledgments).
-  - Will ensure that simultaneous updates must be consistent.
-  - Reason: Non-faulty validators will acknowledge only one proposal per view.
-  - Two write quorums have a non-faulty validator in common, ensuring both support the same proposal.
+Key Property: Two-thirds quorums guarantee honest overlap
+- If S and T are quorums where |S|, |T| > 2n/3:
+  * They must overlap in >n/3 validators
+  * At least one must be honest (since <n/3 are Byzantine)
+- Example: With 12 validators (where ≤3 Byzantine)
+  * Quorum 1: {V1...V8}  (8 validators)
+  * Quorum 2: {V5...V12} (8 validators)
+  * Overlap: {V5...V8}   (4 validators)
+  * Even if 3 in overlap are Byzantine, still have 1 honest validator
 
-Idea #3: Can't trust the leader to assemble a read quorum, so each validator assembles one itself before acknowledging a proposal.
-- Quorum Certificate (QC): >2n/3 validators attesting that a proposal by the leader is up-to-date (as far as they can tell).
-- QCs are included in the blockchain as metadata (B1 Q1 B2 Q2 B3 Q3 ...).
-- Adds an extra round to each view.
-- Note: QCs don't even make sense without Idea #1 (signatures).
-- Worry: Byzantine validators will manipulate QC formation.
-  - Good news: Idea #2 makes it impossible to have QCs for two different proposals in the same view (effectively, equivocation not possible).
-    
+Idea #3: Quorum Certificates (QCs) for Proposal Verification
+- Instead of trusting the leader's read quorum:
+  1. Leader makes proposal
+  2. Each validator independently verifies proposal is up-to-date
+  3. >2n/3 validators must sign to create a QC
+  4. QC is stored in blockchain: Block1-QC1-Block2-QC2-Block3-QC3...
+
+Example QC Formation:
+1. Leader proposes Block4
+2. Validators check their chains
+3. If valid, they sign: Sig_Vi("Block4 is valid")
+4. Once >2n/3 signatures collected, QC4 is formed
+5. Block4-QC4 added to chain
+
+Benefits:
+- Byzantine leader can't trick validators with fake/old data
+- Two conflicting proposals can't both get QCs in same view
+- All validators can independently verify the chain's validity
