@@ -1,0 +1,88 @@
+Lecture 1 - Blockchain:
+    What is blockchain?
+        A computer in the sky, more specifically a network of computers that can execute code and store data
+
+Lecture 2 - Blockchain Fundamentals & Consensus:
+    Validators: nodes or computers that run the blockchain protocol
+    Transactions: user-submitted instructions or actions (e.g., sending a payment, invoking a smart contract)
+    Blocks: a batch (sequence) of transactions
+    Consensus: the process of reaching agreement on the total ordering of blocks (and thus transactions)
+    Execution: the process of processing transactions in the VM
+    Consensus vs Execution:
+        Think of consensus as deciding WHAT to do, and execution as actually DOING it:
+        - Consensus: Validators agree on the order of transactions
+        - Execution: Validators process those transactions to update the blockchain's state
+    State Machine Replication (SMR):
+        - Clients submit transactions to validators which maintain a log/chain of finalized transactions
+        - Consistency: same sequence
+        - Liveliness: each valid transaction known by a non-faulty node gets logged eventually
+    Faults:
+        - Crash faults: validator stops working
+        - Byzantine faults: validator is bad actor
+    Synchronous vs Asynchronous:
+        - Synchronous: known maximum time for message delivery
+        - Asynchronous: arrives eventually from one validator to another
+
+Lecture 3 - Consensus Protocols:
+    Protocol A:
+        - Each view (time section), leader collects transactions and proposes a new block.
+        - If the leader crashes, concistency is violated
+
+    Protocol B:
+        - Two phases: Catch-up and Proposal
+        - Catch-up: all nodes send chains to leader
+        - Proposal: leader chooses longest, appends new block, and broadcasts
+        - This is both consistent and lively when there are no byzantine faultss
+        - If asynchronous, leaders might propose old information
+        - FLP impossibility: Async means if crash, you never decide or decide without concensus
+
+Lecture 4 - Partial Synchrony and Paxos/Raft:
+    Partial Synchrony: 
+        - To accomodate for outages and attacks, there is a global clock
+        - There is an upper bound delta on message delays after GST
+        - GST is an unknown time after which messages arrive within delta
+        - Before GST, messages can be arbitrarily delayed
+        - Before GST we always have consistency, but not liveness, after GST we have liveness
+    Security Thresholds: the fraction of faulty validators at which consensus becomes impossible
+        - Recall: With crash faults and synchronous networks, we only need 1 validator to be alive
+                With crash faults and asynchronous networks, we need all validators for consensus
+        - With crash faults and partial synchrony, we need a strict majority to distinguish crashes from delays
+    
+    Protocol C:
+        1. Catch up: all validators sent chains to leader
+        2. Propose: leader waits for >n/2 chains, picks longest, extends, and broadcasts to all
+        3. Acknowledge & Finalize: when a validator gets the broadcast, it brodcasts 'ack' and if >n/2 validators ack, it is finalized on a validator
+
+Lecture 5:
+    Paxos/Raft with Byzantine Faults:
+        - Question: Is Protocol C still live and consistent with Byzantine faults?
+            - Issue 1: Ignoring Read Quorum (bad actor makes up chain)
+            - Issue 2: Equivocation (send out two 'truths')
+            - Issue 3: Misreporting Messages (bad actor impersonates honest validator)
+        - Digital Signature Schemes in Blockchains:
+            -Three efficient algorithms
+                Key Generation Algo: creates a public/private key pair from a seed r
+                Signing Algo: Maps a message and pk to a signature
+                Verification Algo: Maps a message, signature, and pk to a boolean value (public/private keys are linked mathmatically)
+        - Byzantine Fault Tolerance:
+            - Need more than 2/3 of validators to be non-faulty
+            - With f Byzantine faults:
+                - Protocol must finalize with only n-f validators
+                - f of those n-f could be Byzantine
+                - Need strict majority of honest validators: (n-f)-f > f
+                - Therefore f < n/3 (33% threshold)
+    Tendermint:
+        - Idea 1: every validator signs every message it sends (clears up issue 3)
+            - Each validator digitally signs all messages with their private key
+            - Other validators verify signatures using public keys
+            - Prevents impersonation attacks
+        - Idea 2: >2n/3 must agree rather than >n/2 (clears up issue 2)
+            - Increases quorum size from >n/2 to >2n/3 
+            - Any two quorums must overlap in >n/3 validators
+            - At least one honest validator in overlap (since <n/3 Byzantine)
+        - Idea 3: Quorum Certificates (QCs) for verifying proposals (clears up issue 1)
+            - Instead of trusting leader's read quorum:
+                1. Leader makes proposal
+                2. Each validator independently verifies proposal is up-to-date
+                3. >2n/3 validators must sign to create QC
+                4. QC stored in blockchain: Block1-QC1-Block2-QC2...

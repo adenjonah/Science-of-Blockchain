@@ -1,0 +1,133 @@
+Paxos/Raft with Byzantine Faults
+--------------------------------
+
+Next Challenge: Byzantine Faults
+
+- Question: Is Protocol C still live and consistent with Byzantine faults?
+
+Byzantine Validator Shenanigans:
+
+1. Issue 1: Ignoring Read Quorum
+    - A Byzantine leader could ignore the read quorum requirement and make an out-of-date proposal.
+    - This could occur if the leader didn't receive chains from more than n/2 validators or chose to ignore them.
+    - Consequence: An out-of-date proposal, if adopted, leads to a consistency violation.
+
+2. Issue 2: Equivocation
+    - A Byzantine leader could propose different chains to different validators (equivocation).
+    - All proposals could be supported by acknowledgments from Byzantine validators.
+    - Consequence: Leads to a consistency violation.
+
+3. Issue 3: Misreporting Messages
+    - A Byzantine validator could lie about messages received from other validators.
+    - This could frame a non-faulty validator for the Byzantine validator's own misbehavior.
+    - Solution: We will tackle this issue with cryptography.
+
+Digital Signature Schemes in Blockchains
+----------------------------------------
+
+- Overview: One of the two most ubiquitous cryptographic primitives in blockchains (along with cryptographic hash functions).
+
+- Applications:
+    1. Transaction Authorization:
+        - Allows a user of a blockchain to authorize a transaction (e.g., making a payment).
+        - Fundamental to the vision of a shared computer in the sky.
+    2. Validator Message Signing:
+        - Allows validators of a blockchain protocol to sign their messages.
+        - Used in most blockchain protocols for this purpose, with Bitcoin being a notable exception.
+
+- Digital Signature Scheme:
+    - Defined by three efficient algorithms:
+        1. Key Generation Algorithm:
+            - Maps a seed r to a (public key, private key) pair.
+            - In some cases, the algorithm may generate r itself.
+        2. Signing Algorithm:
+            - Maps a message and a private key to a signature.
+            - The signature depends on both the private key and the message being signed.
+        3. Verification Algorithm:
+            - Maps a message, signature, and public key to a boolean value.
+            - Anyone who knows the public key can verify the correctness of an alleged signature.
+
+- Ideal Signature Scheme:
+    - Cannot produce valid signatures that you haven't already seen unless you know the private key.
+    - Not literally true, as one could theoretically reverse engineer the private key from the public key by brute force.
+
+- Security Assumptions:
+    - The attacker is computationally bounded (polynomial time).
+    - The secret key length is sufficiently long (so brute force is infeasible).
+    - There is no way to forge signatures much faster than brute forcing the private key.
+        - Ideally, this is related to a standard hardness assumption like the discrete logarithm problem.
+    - There is a non-zero chance the attacker gets lucky.
+    - Semi-formal DSS Security Statement:
+        - No efficient algorithm can forge valid signatures, even after seeing many signed messages.
+
+- Examples:
+    - Digital Signature Scheme Example: RSA, where the public key is used to verify signatures and the private key is used to sign messages.
+    - Byzantine Fault Example: In a distributed system, a node that sends conflicting information to different parts of the system to disrupt consensus.
+
+The Partially Synchronous Model
+-------------------------------
+
+- Characteristics:
+    - Shared global clock (timesteps = 0,1,2,3...)
+    - Known upper bound on message delay (e.g., 100ms)
+    - Unknown transition time GST (global stabilization time) from asynchrony to synchrony
+        - Protocol must work no matter what GST is.
+
+- Goals:
+    - Consistency, always even pre-GST/under attacker.
+    - Liveness soon after GST.
+        - FLP impossibility result implies we need to give up one of consistency or liveness before GST (we give up liveness).
+
+What is Possible with Byzantine Faults?
+---------------------------------------
+
+- Fact: Crash faults + partial synchrony - security threshold < 33%
+    - No hope unless more than two-thirds of validators are non-faulty.
+
+- Intuition:
+    - Suppose we want to tolerate up to f Byzantine faults.
+    - Liveliness requires the protocol to eventually finalize new transactions even if it has heard from only n-f validators.
+    - Ambiguity between crashes and long message delays might mean that f of the n-f contributing validators are Byzantine.
+    - To avoid being tricked, a strict majority of these n-f validators must be honest: (n-f)-f > f, i.e., f < n/3.
+
+Toward Tendermint
+------------------
+
+Starting point: protocol C (kinda = Paxos/Raft)
+
+Issue 1: could ignore read quorum
+Issue 2: could equivocate (definition: propose different chains to different validators)
+Issue 3: Byzantine validators could lie about messages received from other validators
+
+Key Ideas in Tendermint
+------------------------
+
+Idea #1: Every validator signs every message it sends.
+- Assume all validators know each other's public keys, IDs, and IP addresses.
+- This is called a "public key infrastructure" (PKI) assumption.
+
+Recall: In Protocol C, it's crucial that every write quorum (size > n/2) intersects every subsequent read quorum (size > n/2).
+- Reason: Once a leader is in a position to make a proposal, it must be up-to-date on all transactions already finalized by some non-faulty validator.
+
+Fix: Ensure that every read quorum and write quorum overlap in at least one non-faulty validator.
+- Can count on this non-faulty validator to keep the leader up-to-date.
+
+Idea #2: 
+- Assume < n/3 validators are Byzantine. [Necessary]
+- Increase all quorum sizes to > 2n/3 validators.
+- Note: Given this assumption, it does not immediately threaten liveness.
+- Updated quorum intersection property: If S, T are quorums, |S|, |T| > 2n/3, then S, T overlap in > n/3 validators.
+- Consequence: Any two quorums have a non-faulty validator in common.
+- Bonus: Can't have write quorums for two different chains in the same view (despite equivocating leader, Byzantine acknowledgments).
+  - Will ensure that simultaneous updates must be consistent.
+  - Reason: Non-faulty validators will acknowledge only one proposal per view.
+  - Two write quorums have a non-faulty validator in common, ensuring both support the same proposal.
+
+Idea #3: Can't trust the leader to assemble a read quorum, so each validator assembles one itself before acknowledging a proposal.
+- Quorum Certificate (QC): >2n/3 validators attesting that a proposal by the leader is up-to-date (as far as they can tell).
+- QCs are included in the blockchain as metadata (B1 Q1 B2 Q2 B3 Q3 ...).
+- Adds an extra round to each view.
+- Note: QCs don't even make sense without Idea #1 (signatures).
+- Worry: Byzantine validators will manipulate QC formation.
+  - Good news: Idea #2 makes it impossible to have QCs for two different proposals in the same view (effectively, equivocation not possible).
+    

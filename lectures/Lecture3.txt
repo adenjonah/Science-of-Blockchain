@@ -10,48 +10,53 @@ OVERVIEW:
 
 ----------------
 1. SMR BASICS
-   - **Goal**: Have all non-faulty nodes maintain a common (consistent) chain of blocks,
+   - Goal: Have all non-faulty nodes maintain a common (consistent) chain of blocks,
      and ensure that any transaction introduced by a non-faulty node is eventually included
      (liveness).
-   - **Consistency**: No two non-faulty nodes end up with chains that diverge.
-   - **Liveness**: If a transaction is known by at least one non-faulty node, it will
-     eventually appear in everyone’s chain.
+   - Consistency: No two non-faulty nodes end up with chains that diverge.
+   - Liveness: If a transaction is known by at least one non-faulty node, it will
+     eventually appear in everyone's chain.
 
 2. CRASH FAULTS VS. BYZANTINE FAULTS
-   - **Crash faults**: A node may shut down and stop sending messages. It does not send
+   - Crash faults: A node may shut down and stop sending messages. It does not send
      malicious or incorrect data.
-   - **Byzantine faults**: A node can behave arbitrarily (maliciously, incorrectly).
+   - Byzantine faults: A node can behave arbitrarily (maliciously, incorrectly).
    - Crash faults are considered the "easier" failure mode.
 
 3. SYNCHRONOUS VS. ASYNCHRONOUS NETWORKS
-   - **Synchronous**: Known upper bound on message delays.
-   - **Asynchronous**: No fixed limit on how long messages can take.
+   - Synchronous: Known upper bound on message delays.
+   - Asynchronous: No fixed limit on how long messages can take.
 
 4. PROTOCOL A (INITIAL IDEA)
-   - Time is divided into “views.” In each view, a single leader proposes a new block.
-   - Leader sends the block to all nodes. Nodes append it if they receive it before the view ends.
-   - **Problem**: If the leader crashes mid-broadcast (after sending to some but not all),
+   - Time is divided into "views." In each view, a single leader proposes a new block.
+   - Here's what happens in each view:
+     1. Users send their transactions (like "Alice sends 5 coins to Bob") to all nodes
+     2. The leader collects these transactions it has received
+     3. The leader packages these transactions into a new block
+     4. Leader sends this block to all nodes
+     5. Nodes append it if they receive it before the view ends
+   - Problem: If the leader crashes mid-broadcast (after sending to some but not all),
      different nodes may have different chains — violating consistency.
 
 5. PROTOCOL B (REFINEMENT)
-   - Splits each view into two phases (two time slots) to ensure the leader is fully “caught up.”
-   - **Phase 1 (Catch-up)**:
+   - Splits each view into two phases (two time slots) to ensure the leader is fully "caught up."
+   - Phase 1 (Catch-up):
      - All nodes send their current chains to the leader.
-   - **Phase 2 (Proposal)**:
+   - Phase 2 (Proposal):
      - Leader picks the longest chain it received, appends a new block to it, and sends
        this updated chain to everyone.
      - Any node that receives this proposal updates its local chain.
-   - **Why This Works**:
+   - Why This Works:
      - The leader always sees the most up-to-date chain before proposing a new block.
      - Even if the leader crashes after sending the chain to some nodes, all the chains
        that receive it are still extensions of a single common chain, so no fork arises.
 
 6. CORRECTNESS OF PROTOCOL B
-   - **Consistency**:
+   - Consistency:
      - By induction: initially, all nodes share the same (empty or initial) chain.
-     - In each view, the leader’s proposed chain extends the longest chain seen so far.
+     - In each view, the leader's proposed chain extends the longest chain seen so far.
      - Therefore, all newly updated chains remain consistent with previous ones.
-   - **Liveness**:
+   - Liveness:
      - A transaction known to a non-faulty node will eventually be proposed when that node
        becomes leader (or is passed along to another leader in its chain data).
      - Hence, all non-faulty nodes will eventually adopt it.
@@ -59,9 +64,9 @@ OVERVIEW:
 7. LIMITATIONS & ASYNCHRONY
    - If messages can be arbitrarily delayed (asynchronous), a leader might not receive the
      latest chains before proposing. This can cause inconsistent views of the chain.
-   - **FLP Impossibility (informal)**: In a purely asynchronous setting, even one crash
+   - FLP Impossibility (informal): In a purely asynchronous setting, even one crash
      fault can prevent guaranteed consensus (SMR).
-   - **Workarounds**:
+   - Workarounds:
      1. Partial synchrony: A practical middle ground where eventually messages must be
         delivered in bounded time.
      2. Relax consistency: Allow small deviations in the chain (not covered in detail here).
