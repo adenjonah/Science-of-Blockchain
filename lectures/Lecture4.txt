@@ -51,21 +51,21 @@ OVERVIEW:
 ### 4.1 Protocol C Details
 - View = 3Δ timesteps (phases of length Δ each):
   1. Catch-Up (0 to Δ):  
-     - Every validator i sends its current chain \( A_i \) to the leader of view \( v \).
+     - Every validator i sends its current chain A_i to the leader of view v.
   2. Propose (Δ to 2Δ):  
-     - Leader waits to receive > n/2 (read quorum) chains \( A_i \).  
-     - Leader picks the chain with the highest view number (most recent) from these > n/2, extends it with any new transactions, and sends the proposal \( A^* \) back to all validators.
+     - Leader waits to receive more than n/2 (read quorum) chains A_i.  
+     - Leader picks the chain with the highest view number (most recent) from these chains, extends it with any new transactions, and sends the proposal A* back to all validators.
   3. Acknowledge & Finalize (2Δ to 3Δ):  
-     - Any validator receiving \( A^* \) sends an "ack" to all other validators. It also updates its local chain \( A_i \) to \( A^* \).  
-     - If a validator sees > n/2 "ack" messages for \( A^* \), it finalizes \( A^* \) (updates its finalized chain \( C_i \)).
+     - Any validator receiving A* sends an "ack" to all other validators. It also updates its local chain A_i to A*.  
+     - If a validator sees more than n/2 "ack" messages for A*, it finalizes A* (updates its finalized chain C_i).
 
 ### 4.2 Consistency Proof
-- Key Claim: If some validators finalize \( A^* \) in view \( v \), then any proposal finalized in a later view \( v' > v \) extends \( A^* \).  
-  - Reason: Quorum intersection. Any new leader in view \( v'+1 \) gathers read quorum > n/2, which overlaps with the > n/2 that acknowledged \( A^* \). Thus, the leader learns about \( A^* \) and extends it, avoiding forks.
+- Key Claim: If some validators finalize A* in view v, then any proposal finalized in a later view v' (where v' > v) extends A*.  
+  - Reason: Quorum intersection. Any new leader in view v'+1 gathers read quorum more than n/2, which overlaps with the more than n/2 that acknowledged A*. Thus, the leader learns about A* and extends it, avoiding forks.
 
 ### 4.3 Liveness Proof
 - Once the network stabilizes after GST, the leader of the next view that starts post-GST can gather all information from non-faulty nodes and propose a block.  
-- That proposal will be seen by > n/2 validators, who will "ack" it, so it becomes finalized.  
+- That proposal will be seen by more than n/2 validators, who will "ack" it, so it becomes finalized.  
 - Therefore, any transaction known by a non-faulty validator will eventually be included in a block in some post-GST view.
 
 --------------------------------------------------
