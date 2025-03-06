@@ -1,0 +1,60 @@
+Lecture 11: Merkle Trees and State Commitments
+
+GOALS
+- Learn about querying commitments and verifying transaction inclusion
+- Understand Merkle trees for transaction commitments
+- Study Merkle-Patricia trees used in Ethereum's state storage
+- Explore Merkle proofs for state transitions and "statelessness"
+
+RECAP FROM LECTURE 10
+- Cryptographic hash functions (like SHA-256) provide:
+  * Short, unique identifiers for objects
+  * Practitioners treat them as random functions (though they're not)
+  * Can be used as binding/hiding commitments to input data
+  * Finding collisions is computationally infeasible
+
+QUERYING COMMITMENTS
+Example: Tendermint Validator Scenario
+- Validator receives blockhash h(B) before actual block B
+  * Could be from current leader's proposal
+  * Or from "up-to-date" messages from other validators
+- To verify:
+  * Request full block from peers
+  * Check if hash matches received h(B)
+
+Properties of Commitment Verification:
+1. No False Negatives
+   - If actual block B is sent, its hash will match h(B)
+2. No False Positives
+   - If different block B' is sent, h(B') won't match h(B)
+   - This assumes no hash collisions found
+
+MERKLE TREES
+- A binary tree where:
+  * Leaf nodes contain hashes of data blocks (e.g., transactions)
+  * Non-leaf nodes contain hashes of their two children combined
+
+Example of a simple Merkle tree:
+                    Root Hash
+                   /         \
+                H1-2         H3-4
+               /    \       /    \
+              H1     H2    H3     H4
+              |      |     |      |
+             Tx1    Tx2   Tx3    Tx4
+
+How it works:
+1. Hash each transaction: H1 = hash(Tx1), H2 = hash(Tx2), etc.
+2. Pair up hashes and hash them together: H1-2 = hash(H1 || H2)
+3. Continue until reaching single root hash
+
+Benefits:
+- Efficient verification of transaction inclusion:
+  * Only need log(n) hashes to prove a transaction is in the tree
+  * Example: To prove Tx2 is included, only need:
+    - H1 and H3-4 to reconstruct root hash
+    - Much more efficient than providing all transactions
+- Tree structure allows parallel processing of hashes
+- Root hash commits to entire set of transactions
+- Widely used in Bitcoin and other blockchains for transaction sets
+
