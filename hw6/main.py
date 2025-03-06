@@ -166,6 +166,110 @@ X = [1,0,0,1,0,1,0,1]
 
 # Your goal is to find a Y and NEW_HASH such that sha256(KEY + X + Y) == NEW_HASH
 
+# Extend the original hash by extracting the internal state
+def hex_to_bitarray(hex_string):
+    result = []
+    for char in hex_string:
+        bits = bin(int(char, 16))[2:].zfill(4)
+        result.extend([int(b) for b in bits])
+    return result
+
+# Extract the internal state values from the HASH
+def extract_state_from_hash(hash_string):
+    h_values = []
+    for i in range(0, len(hash_string), 8):
+        h_chunk = hash_string[i:i+8]
+        h_bits = hex_to_bitarray(h_chunk)
+        h_values.append(h_bits)
+    return h_values
+
+# Modified SHA-256 for length extension
+def length_extension_sha256(internal_state, extension_bits, original_message_length):
+    # Recreate internal state
+    h0, h1, h2, h3, h4, h5, h6, h7 = internal_state
+    
+    # Calculate padding for the original message
+    padding_length = 512 - (original_message_length % 512)
+    if padding_length < 64 + 1:
+        padding_length += 512
+    
+    # Create the message for extension (only Y with appropriate padding)
+    bits = extension_bits.copy()
+    message_len = original_message_length + len(bits)
+    message_len_bits = [int(b) for b in bin(message_len)[2:].zfill(64)]
+    
+    bits.append(1)
+    while (len(bits) + 64) % 512 != 0:
+        bits.append(0)
+    bits = bits + message_len_bits
+    
+    # Process the message blocks
+    chunks = chunker(bits, 512)
+    for chunk in chunks:
+        w = chunker(chunk, 32)
+        for _ in range(48):
+            w.append(32 * [0])
+        for i in range(16, 64):
+            s0 = XORXOR(rotr(w[i-15], 7), rotr(w[i-15], 18), shr(w[i-15], 3))
+            s1 = XORXOR(rotr(w[i-2], 17), rotr(w[i-2], 19), shr(w[i-2], 10))
+            w[i] = add(add(add(w[i-16], s0), w[i-7]), s1)
+        a = h0
+        b = h1
+        c = h2
+        d = h3
+        e = h4
+        f = h5
+        g = h6
+        h = h7
+        for j in range(64):
+            S1 = XORXOR(rotr(e, 6), rotr(e, 11), rotr(e, 25))
+            ch = XOR(AND(e, f), AND(NOT(e), g))
+            temp1 = add(add(add(add(h, S1), ch), initializer(K)[j]), w[j])
+            S0 = XORXOR(rotr(a, 2), rotr(a, 13), rotr(a, 22))
+            m = XORXOR(AND(a, b), AND(a, c), AND(b, c))
+            temp2 = add(S0, m)
+            h = g
+            g = f
+            f = e
+            e = add(d, temp1)
+            d = c
+            c = b
+            b = a
+            a = add(temp1, temp2)
+        h0 = add(h0, a)
+        h1 = add(h1, b)
+        h2 = add(h2, c)
+        h3 = add(h3, d)
+        h4 = add(h4, e)
+        h5 = add(h5, f)
+        h6 = add(h6, g)
+        h7 = add(h7, h)
+    
+    # Construct the final hash
+    digest = ''
+    for val in [h0, h1, h2, h3, h4, h5, h6, h7]:
+        digest += b2Tob16(val)
+    return digest
+
+# Create a unique bit pattern for Y
+Y = [1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1]
+
+# Extract internal state from the original hash
+internal_state = extract_state_from_hash(HASH)
+
+# Calculate the original message length (KEY + X + padding)
+original_length = 256 + 8  # 256 bits for KEY, 8 bits for X
+
+# Compute the new hash
+NEW_HASH = length_extension_sha256(internal_state, Y, original_length)
+
+# Submit this file to GradeScope
+with open('COMS_4995_hw5' , 'wb') as f:
+    pickle.dump((Y, NEW_HASH), f)
+    f.close()
+
+# Your goal is to find a Y and NEW_HASH such that sha256(KEY + X + Y) == NEW_HASH
+
 Y = [] #An array of bits, like X
 NEW_HASH = "" #A string of hex characters, like HASH
 
