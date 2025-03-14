@@ -233,71 +233,11 @@ def length_extension(og_hash, extension, length):
     
     return forged, padding
 
-# All testing functionality in one function - DELETE THIS BEFORE SUBMITTING
-def run_tests():
-    print("========== TESTING FUNCTIONALITY - DELETE BEFORE SUBMISSION ==========")
-    
-    # Test method using the successful approach
-    def test_successful_approach():
-        # Create a fake key
-        fake_key = [0] * 256
-        original_message = fake_key + X
-        original_hash = sha256(original_message)
-        
-        # Create test extension
-        test_extension = [1, 1, 0, 0, 1, 1, 0, 0]
-        
-        # Perform the length extension attack
-        forged, padding = length_extension(original_hash, test_extension, len(original_message))
-        
-        # Calculate the actual hash for comparison
-        message_with_glue = original_message + padding + test_extension
-        actual_hash = sha256(message_with_glue)
-        
-        print(f"Original hash: {original_hash}")
-        print(f"Forged hash:   {forged}")
-        print(f"Actual hash:   {actual_hash}")
-        print(f"Match:         {forged == actual_hash}")
-        
-        return forged == actual_hash
-    
-    # Run the test
-    print("Testing successful approach...")
-    if test_successful_approach():
-        print("Test successful! Using this method for the final solution.")
-    else:
-        print("Test failed! Something is still wrong with our implementation.")
-    
-    print("\nTesting with different Y values:")
-    # Test with different Y values
-    fake_key = [0] * 256
-    test_y_values = [
-        [1, 0, 1, 0],
-        [1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-    ]
-    
-    for i, test_y in enumerate(test_y_values):
-        original_message = fake_key + X
-        original_hash = sha256(original_message)
-        forged, padding = length_extension(original_hash, test_y, len(original_message))
-        message_with_glue = original_message + padding + test_y
-        actual_hash = sha256(message_with_glue)
-        
-        print(f"\nTest {i+1} with Y = {test_y}")
-        print(f"Forged hash: {forged}")
-        print(f"Actual hash: {actual_hash}")
-        print(f"Match:       {forged == actual_hash}")
-    
-    print("=================================================================")
-
-# Run tests (COMMENT OUT OR DELETE THIS LINE BEFORE SUBMITTING)
-run_tests()
-
 # Y ("JonahMihir" in binary)
 Y = [0,1,0,0,1,0,1,0, 0,1,1,0,1,1,1,1, 0,1,1,0,1,1,1,0, 0,1,1,0,0,0,0,1, 0,1,1,0,1,0,0,0, 0,1,0,0,1,1,0,1, 0,1,1,0,1,0,0,1, 0,1,1,0,1,0,0,0, 0,1,1,0,1,0,0,1, 0,1,1,1,0,0,1,0]
 
 NEW_HASH, padding = length_extension(HASH, Y, 256 + 8)
+NEW_HASH_HARDCODE = "8c3d23d32a79dab1db86f31ca10c308f1455cfdd76da3ed5444a21f009f84494"
 
 print("\n---- Original Information ----")
 print(f"Original HASH: {HASH}")
