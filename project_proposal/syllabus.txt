@@ -1,0 +1,308 @@
+COMS 4995-001: The Science of Blockchains, Spring 2025
+
+Announcements
+
+Jan 22: Welcome to COMS 4995-001!
+Instructor:
+Tim Roughgarden (Office hours: Mondays/Wednesday after class (until 10:45am), in Mudd 410. Email: tim.roughgarden@gmail.com.)
+Course Assistants:
+
+Naveen Durvasula (Office hours: Mondays 11am-12:30pm, Tuesdays 1:30-2:30pm, and Wednesdays 1-2:30pm, in Mudd 416. Email: nkd2126@columbia.edu.)
+Yuval Efron (Office hours: Tuesdays 10am-noon, in CSB 522. Email: ye2210@columbia.edu.)
+Time/location:
+
+Required lectures: 8:40-9:55 AM on Mondays and Wednesdays in CSB 451.
+Optional sections: 8:40-9:55 AM on selected Fridays in CSB 451.
+Discussion site: ed.
+
+Prerequisites: Familiarity with computer science systems and theory at the level of COMS W3261 and COMS W3827. The intended audience is advanced undergradates and beginning graduate students in computer science and adjacent fields.
+
+Course description: Principles and practice of blockchain protocol design. Consensus, execution, virtual machines, smart contracts. Rollups and other approaches to scalability, authenticated data structures, light clients, bridges, optimistic and SNARK-based designs. Transaction fee mechanisms. Data availability. Mempools. Proof-of-work, proof-of-stake, incentives for validators. Application of these principles in practical protocols such as Bitcoin and Ethereum.
+
+
+Coursework
+
+Project (50%): To be completed in teams of 3-4 students. Further details TBA.
+Deadline for project proposal: Friday, March 14.
+Deadline for final deliverables: TBD.
+Proposal instructions and sample topics.
+Sample reports (from previous offerings of a related COMS 6998 course):
+Large Ethereum Contracts and Gas Fee Non-linearity by Maryam Bahrani, Miranda Christ, Daniel Jaroslawicz, Eric Neyman
+Decentralized Prediction Markets by Jianxiong Zhan, Chi Wai Lau, Lawan Rahim, Quoc Le
+Proof of Space with VDF: An Alternative Permissionless BFT Consensus Protocol, by Yuxuan Luo.
+An Initial Framework for NFT Auction Mechanism Design: Impossibility Results and Solutions, by Andy Arditi, Pranav Garimidi, Dean Hirsch, and Iason Milionis.
+Alternative Sybil Resistance Methods, by Marcus Daly, Nathan Cuevas, Griffin Klett, and Lynn Zhu.
+A Review of Zero Knowledge Proofs, by Thomas Chen, Abby Lu, Jern Kunpittaya, and Alan Luo.
+A Survey of DeFi Lending, by Alex Brenebel, Lynsey Haynes, Vaibhav Kapur, and Jonathan Larkin.
+DAOs, by Utkarsh Sinha, Sofia Bianchi, Ian Macleod, and Imanol Uribe.
+Proof of Participation Voting for On-Chain Governance, by Terry Chung, Sandip Nair, Uttara Ravi, and Pranav Kajgaonkar.
+A Technical Deep Dive Into and Implementation of Non-Fungible Tokens in a Practical Setting, by Julia Martin and Carrie Hay Kellar.
+Privacy when Everyone is Watching: Anonymity on the Blockchain, by Nilaksh Agarwal and Roy Rinberg.
+MEV on L2 by FlashBabies (Huy Ha, Vasiliki Vlachou, Quintus Kilbourn, and Cesare De Michellis).
+
+Course participation (10%): Based on attendance and participation in lecture and office hours. We reserve the right to have occassional in-class pop quizzes. Attendance at Friday sections is optional, though we reserve the right to award a small number of extra credit points for attending them.
+If you need to miss a class (for legitimate reasons), notify the TAs at least 24 hours in advance.
+
+Homeworks (40%): There will be a number of homeworks, around 8-9 in total, which may include theory, reading responses, small coding exercises, etc. Homeworks can be completed in pairs.
+Homework #1 (Out Wed Jan 29, due Wed Feb 5.)
+Homework #2 (Out Wed Feb 5, due Wed Feb 12.)
+Homework #3 (Out Wed Feb 12, due Wed Feb 19.)
+Homework #4 (Out Wed Feb 19, due Wed Feb 26.)
+Homework #5 (Out Wed Feb 26, due Wed Mar 5.)
+
+Homework Policies:
+To be submitted in groups of 2 (all students of the group receive the same score).
+You can form different pairs for different exercise sets.
+You can discuss exercises with students from other groups verbally and at a high level only.
+Except where otherwise noted, you may refer to your course notes, the textbooks and research papers listed on the course Web page only. You cannot refer to textbooks, handouts, or research papers that are not listed on the course home page. If you do use any approved sources, make you sure you cite them appropriately, and make sure that all your words are your own.
+You are strongly encouraged to use LaTex to typeset your write-up. Here's a LaTeX template that you can use to type up solutions. Here and here are good introductions to LaTeX.
+Honor code: We expect you to abide by the computer science department's policies and procedures regarding academic honesty.
+Submission instructions: We are using Gradescope for the homework submissions. The course code is 957287. Only one group member needs to submit each assignment. When submitting, please remember to add all group member names into Gradescope.
+
+Late Days:
+Late days cannot be applied to project deadlines (only to homework).
+One late day equals a 24-hour extension.
+Each student has three free late days.
+At most two late days can be applied to a single assignment.
+Each late day used after the first two will result in a 25% penalty.
+Example: a student had one free late day remaining but their group uses two late days on a Problem Set. If the group's write-up earns p points, the student receives a final score of .75*p points for the assignment.
+
+Lecture Schedule
+Note: Everything below is subject to change!
+
+
+Part I: Building a Shared Global Virtual Machine
+
+Lecture 1 (Wed Jan 22): Course overview and main themes. Introuduction to the "computer in the sky." Analogies with the operating system of a computer and the IP layer of the networking stack. Decentralization and property rights for digital assets.
+Lecture slides
+Lecture outline
+Supplementary reading and additional resources (optional unless otherwise noted):
+For a slightly watered down version of this lecture, see Mental Models for Blockchain Protocols and Web3.
+For a longer rant about concert tickets and property rights for digital assets more generally, see The Computer in the Sky (Long Version).
+There is some overlap between this lecture and Lecture 1 of my Fall '21 course, particularly Sections 2 and 3 of these lecture notes and the first two videos of this video playlist.
+
+[no optional section on Fri Jan 24]
+
+Lecture 2 (Mon Jan 27): The SMR (state machine replication) problem. Defining consensus, consistency, and liveness. Degrees of faulty validators and asynchrony. Security thresholds.
+Lecture slides
+Lecture outline
+General resources on blockchain consensus:
+The Decentralized Thoughts blog.
+Elaine Shi's book draft, Foundations of Distributed Consensus and Blockchains.
+Part 1 and Part 2 of Ittai Abraham's tutorial.
+Andrew Lewis-Pye's Consensus in 50 pages (rough draft)
+James Aspnes's Notes on Theory of Distributed Systems.
+Supplementary reading and additional resources (optional unless otherwise noted):
+Parts of this lecture appear (in somewhat watered down form) in Blockchain Protocols and Web3: A Glimpse Under the Hood.
+The SMR Problem (Foundations of Blockchains); see also Section 5 of these lecture notes.
+Consensus for State Machine Replication (Decentralized Thoughts)
+The power of the adversary (Decentralized Thoughts)
+
+Lecture 3 (Wed Jan 29): Solving the SMR problem with crash faults and a synchronous network.
+Lecture slides
+Lecture outline
+Supplementary reading and additional resources (optional unless otherwise noted):
+Primary-Backup State Machine Replication for Crash Failures (Decentralized Thoughts)
+
+Bonus Lecture 1 (Fri Jan 31): The FLP theorem: on the impossibility of consensus in asynchrony.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+The starting point for the proof in this lecture is Consensus tolerating one mobile crash in synchrony or one crash is asynchrony must have infinite executions for the same simple reason (Decentralized Thoughts)
+For a somewhat different proof (closer to the original), see these lecture notes and/or videos 4.1--5.3 of this playlist.
+
+Lecture 4 (Mon Feb 3): The partially synchronous model. Limits on what is possible. Solving the SMR problem in partial synchrony with crash faults (via Paxos/Raft).
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Synchrony, Asynchrony and Partial synchrony (Decentralized Thoughts)
+The CAP Theorem and why State Machine Replication for Two Servers and One Crash Failure is Impossible in Partial Synchrony (Decentralized Thoughts)
+On Paxos from Recoverable Broadcast (Decentralized Thoughts)
+Benign Hotstuff (Decentralized Thoughts)
+Raft home page, with many implementations.
+
+Lecture 5 (Wed Feb 5): The challenges of Byzantine faults. Digitial signature schemes. Limits on what is possible in partial synchrony.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Byzantine Agreement is impossible for n at most 3f under partial synchrony (Decentralized Thoughts)
+A Byzantine failure in the real world (Cloudflare)
+tl;dr for digital signatures: see Section 4 of these lecture notes and/or this video.
+Formal proof of the impossibility result: Section 8 of these lecture notes and/or this video.
+
+Bonus Lecture 2 (Fri Feb 7): Digital signature schemes in a blockchain context (part 1 of 2): bits of security, groups and the discrete logarithm approach, algorithms for the discrete logarithm problem.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Groups Underpin Modern Math. Here's How They Work (Quanta)
+Boneh/Shoup, A Graduate Course in Applied Cryptography, Sections 13.1 and 16.1.1, and the introduction in Section 16.2.
+
+Lecture 6 (Mon Feb 10): Tendermint: Solving the SMR problem in partial synchrony with Byzantine faults.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+The version of Tendermint covered in this lecture is similar to that in Section 9.3 of Consensus in 50 pages (Lewis-Pye).
+Another variation on Tendermint, based on iterated Byzantine agreement, from my Fall '21 course. (Related videos starting here.)
+Open-source implementations of similar protocols: CometBFT and Malachite.
+Linear PBFT: a gentle introduction to Practical Byzantine Fault Tolerance (Decentralized Thoughts)
+Newer kids on the block with similar guarantees to Tendermint: HotStuff (Yin/Malkhi/Reiter/Gueta/Abraham), Streamlet (Chan/Shi) and Simplex (Chan/Pass).
+
+Lecture 7 (Wed Feb 12): Longest-chain consensus. Drawbacks: delays to transaction finalization in synchrony, loss of consistency in partial synchrony (cf., the CAP Principle), sub-optimal chain quality. Matching guarantees for longest-chain consensus.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+For the more advanced 2021 version of this lecture, see these lecture notes (especially Sections 1-3, 5-6, and 12) and this video playlist (especially videos 8.1 and 8.8).
+More on the CAP Principle: Section 9 of these notes, this video, and Decentralized Thoughts.
+
+Bonus Lecture 3 (Fri Feb 14): Digital signature schemes in a blockchain context (part 2 of 2): elliptic curves, Schnorr and ECDSA signatures, pairings and BLS signatures.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Boneh/Shoup, A Graduate Course in Applied Cryptography, Sections 15.1-15.5, 19.1 (intro), 19.2.3, and 19.3.
+Visualizing Elliptic Curve Cryptography
+How to Find Rational Points Like Your Job Depends on It (Quanta)
+Elliptic Curve Cryptography (ECC) (Practical Cryptography for Developers)
+Schnorr signatures: everything you wanted to know, but were afraid to ask! (Tomescu)
+ECDSA signatures (and why you should avoid them) (Tomescu)
+Elliptic curves and ECDSA: everything to know to sign a transaction in Bitcoin from scratch
+BLS signatures in Ethereum
+How was the generator point of secp256k1 chosen? (Heninger)
+Advanced cryptography primitives â€” group, finite field, elliptic curves and pairings (Blockchain Architect)
+
+Lecture 8 (Mon Feb 17): The execution layer. The UTXO model: state, transactions, and state transitions. Spending conditions and witnesses. Some Bitcoin lore: the blocksize wars, and the challenge of defining transaction "size": SegWit, Taproot, and ordinals/inscriptions.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+The Bitcoin white paper, 2008.
+Chapter 3 of the book Bitcoin and Cryptocurrency Technologies, by A. Narayanan, J. Bonneau, E. Felten, A. Miller, and S. Goldfeder (draft from 2016).
+Bitcoin in 2017: Remembering the Blocksize War (Trust Machines)
+What Are Ordinals? Bitcoin NFTs Explained (Chainlink)
+
+Lecture 9 (Wed Feb 19): The execution layer. The account-based model: state, transactions, and state transitions. Bytecode and virtual machines. Running examples: Ethereum and Solana.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Ethereum docs
+Solana docs
+The Ethereum protocol in increasing order of detail: white paper; beige paper; yellow paper
+Ethereum EVM illustrated (Takenobu)
+LearnEVM.com
+An Ethereum Virtual Machine Opcodes Interactive Reference
+The Solana Programming Model: An Introduction to Developing on Solana (Helius)
+Solana Transactions in Depth (Miller)
+
+[no optional section on Fri Feb 21]
+
+Part II: Scaling Up a Shared Global Virtual Machine
+
+Lecture 10 (Mon Feb 24): Cryptographic hash functions.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+What is a Merkle Tree? (Decentralized Thoughts)
+Boneh/Shoup, A Graduate Course in Applied Cryptography, Sections 8.1, 8.4, and 8.6.
+What is the Random Oracle Model and why should you care? (Green)
+What is the "Random Oracle Model" and why is it controversial? (StackExchange)
+
+Lecture 11 (Wed Feb 26): Merkle and Merkle-Patricia trees.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Boneh/Shoup, A Graduate Course in Applied Cryptography, Section 8.9.
+Merkling in Ethereum (Buterin)
+Why it's so important to go stateless (Feist)
+Bonus Lecture 4 (Fri Feb 28): KZG commitments.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Sections 15.1 and 15.2 of Justin Thaler's book
+KZG polynomial commitments (Feist)
+How KZG Commitment Works: Polynomial Commitments Simplified (zkMarek)
+How do Ethereum blobs really work? Vector commitments simplified (zkMarek)
+KZG polynomial commitments and their applications in blockchain (EIP-4844) (0xbarchitect)
+Proto-Danksharding FAQ (Buterin)
+How do trusted setups work? (Buterin)
+Implementing Trusted Setup Ceremony for Ethereum's EIP-4844 (Reilabs)
+On-Chain Trusted Setup Ceremony (Nikolaenko/Ragsdale)
+
+Lecture 12 (Mon Mar 3): Data availability.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+What is Verifiable Information Dispersal? (Decentralized Thoughts)
+Data Availability Sampling: From Basics to Open Problems (Neu)
+Data availability sampling and danksharding: An overview and a proposal for improvements (Nikolaenko/Boneh)
+
+Lecture 13 (Wed Mar 5): Light and stateless clients.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Section 8 of the Bitcoin white paper (Nakamoto)
+SoK: Blockchain Light Clients (Chatzigiannis/Baldimtsi/Chalkias)
+Don't trust, verify: An introduction to light clients (Sorgente)
+Building Helios: Fully trustless access to Ethereum (Citron)
+Stateless Clients: A Path to Decentralization in Ethereum (YQ)
+
+[no optional section on Fri Mar 7]
+
+Lecture 14 (Mon Mar 10): Scaling blockchain protocols. Throughput and latency. Categories of scaling approaches: constraining the validator set, better protocols and client implementations, outsourcing validator responsibilities to third parties, sharding/horizontal scaling.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+Scaling Blockchains: the Power of Batching (Decentralized Thoughts)
+Scaling Ethereum L1 and L2s in 2025 and beyond (Buterin)
+Randomly sampled committees in Ethereum and Algorand
+Turbine: Block Propagation on Solana (Helius)
+Narwhal and Tusk: A DAG-based Mempool and Efficient BFT Consensus (Danezis/Kokoris-Kogias/Sonnino/Spiegelman)
+Block-STM: Scaling Blockchain Execution by Turning Ordering Curse to a Performance Blessing (Gelashvili/Spiegelman/Xiang/Danezis/Li/Malkhi/Xia/Zhou)
+Autobahn: Seamless high speed BFT (Giridharan/Suri-Payer/Abraham/Alvisi/Crooks)
+
+Lecture 15 (Wed Mar 12): Introduction to rollups. EIP-4844.
+Lecture slides
+Supplementary reading and additional resources (optional unless otherwise noted):
+An Incomplete Guide to Rollups (Buterin)
+Rollups explained (Alt explained)
+Proto-Danksharding FAQ (Buterin)
+Understanding Dencun, the biggest upgrade to Ethereum since The Merge (Citron/Nikolaenko)
+
+[no optional section on Fri Mar 14]
+
+[spring break, no lectures week of March 17--21]
+
+Lecture 16 (Mon Mar 24): Optimistic rollups.
+Supplementary reading and additional resources (optional unless otherwise noted):
+Fraud Proof Wars (L2BEAT)
+BoLD: Fast and Cheap Dispute Resolution (Arbitrum)
+
+Lecture 17 (Wed Mar 26): Introduction to SNARKs.
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+[no optional section on Fri Mar 28]
+
+Lecture 18 (Mon Mar 31): SNARKs continued and validity rollups.
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 19 (Wed Apr 2): Bridges/interoperability.
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Bonus Lecture 5 (Fri Apr 4): SNARKs under the hood.
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Part III: Permissionless Validation
+
+Lecture 20 (Mon Apr 7): Permissionless consensus. Sybils. Proof-of-work.
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 21 (Wed Apr 9): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+[no optional section on Fri Apr 11]
+
+Lecture 22 (Mon Apr 14): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 23 (Wed Apr 16): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Bonus Lecture 6 (Fri Apr 18): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 24 (Mon Apr 21): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 25 (Wed Apr 23): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 26 (Mon Apr 28): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 27 (Wed Apr 30): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):
+
+Lecture 28 (Mon May 5): TBD
+Supplementary reading and additional resources (optional unless otherwise noted):

@@ -1,0 +1,106 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=0.75in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{booktabs}
+\usepackage[numbers]{natbib} 
+\usepackage{hyperref}
+
+\title{A Survey of Data Availability in Blockchains: \\ 
+Approaches, Challenges, and Future Directions \\
+Project Proposal}
+\author{Xuan Jiang \and Mihir Uberoi \and David Eyal \and Jonah Aden }
+\date{} % Removes date
+
+\begin{document}
+
+\vspace{-1cm}
+\maketitle
+
+\section*{1.\ Abstract}
+Ensuring the verifiability and accessibility of blockchain data,
+\emph{data availability} (DA), is fundamental for secure and scalable distributed ledgers. 
+This project proposal is for a survey paper that will consolidate and analyze current approaches, challenges, and future research directions for the data availability problem. We will aim to synthesize both
+industry and academic perspectives and find critical insights to guide future
+DA innovation while identifying and analyzing gaps in existing protocols.
+
+\section*{2.\ Motivation and Scope}
+\noindent
+Data availability is becoming increasingly important as blockchains scale to handle larger 
+transaction volumes. Data availability is currently remedied via sharding, rollups, and modular architectures. 
+If required data are withheld or partially published, even sophisticated proof systems (e.g., 
+fraud proofs, validity proofs) can fail to protect the network from invalid states. Layer-2 
+solutions that rely on off-chain computation and partial on-chain data storage further
+amplify the need for robust DA schemes, such as data availability sampling and erasure
+coding \citep{heo2024}. Additional motivation includes:
+\begin{itemize}
+    \item \emph{Expansion of DA Paradigms:} A number of specialized DA frameworks (Celestia, Avail) have emerged, focused solely on guaranteeing data availability for any blockchain or rollup anchored to them. The final paper will map how these new 
+    "modular" systems differ from legacy approaches.
+    \item \emph{Evolving Consensus Models:} Solutions such as \emph{Danksharding} and 
+    \emph{EigenDA} decouple consensus from data storage as a solution to DA. 
+    Our survey will explain how these approaches promise higher throughput, but create new complexities in data verification \citep{saif2024}.
+    \item \emph{Security and Privacy Implications:} In leveraging polynomial 
+    commitments, zero-knowledge proofs, or local repair codes, DA methods need to be analyzed for an ideal balance between privacy, performance, and trust assumptions \citep{liux2023}.
+\end{itemize}
+
+\section*{3.\ Proposed Outline}
+
+\noindent
+In the final paper (target length: 15-20 pages), we intend to survey the following 
+topics in detail:
+
+\paragraph{3.1 Introduction (1-2 pages)}
+\begin{itemize}
+    \item Brief overview of blockchain data availability and its necessity in 
+    scaling solutions.
+    \item Motivation behind the survey: Bridging monolithic and modular DA designs.
+    \item Scope of coverage: from classic SPV and Merkle proofs to advanced off-chain 
+    committees.
+\end{itemize}
+
+\paragraph{3.2 Fundamentals of Data Availability in Blockchains (3-4 pages)}
+\begin{itemize}
+    \item \textbf{Definitions and Threat Models:} Clarify precisely what DA entails, how data-withholding happens in sharded or modular designs, and why verifying completeness is needed. 
+    \item \textbf{Metrics and Guarantees:} Availability proofs, sampling based checks, cryptographic vs. economic security assumptions, and how these metrics compare between different protocols.
+\end{itemize}
+
+\paragraph{3.3 Approaches to Data Availability (5-6 pages)}
+\begin{itemize}
+    \item \textbf{Traditional (Monolithic) Approaches:} Full node verification, 
+    Merkle-based commitments, and state proofs in systems like Bitcoin and Ethereum.
+    \item \textbf{Light Clients and SPV/Fraud Proofs:} Historical origins 
+    of partial verification in simpler payment schemes and how this has evolved into 
+    modern rollups.
+    \item \textbf{Data Availability Sampling (DAS) Techniques:} Explore polynomial 
+    commitments (KZG), erasure coding, and random sampling strategies. We will focus on overhead, reliability, and adoption status.
+    \item \textbf{Layer-2 DA Mechanisms and Off-chain Committees:} Investigate 
+    optimistic vs.\ zero knowledge rollups, highlighting how certain rollup systems rely on external data availability layers or committees.
+    \item \textbf{Dedicated DA Layers:} Focus on Celestia, Avail, and EigenDA: design 
+    architecture, integration with main chains, and performance benchmarks.
+\end{itemize}
+
+\paragraph{3.4 Comparative Analysis and Real-World Adoption (3--4 pages)}
+\begin{itemize}
+    \item \textbf{Performance vs.\ Security:} Evaluate overhead, latency, 
+    and required trust assumptions across the surveyed solutions. 
+    \item \textbf{Protocol Deployments:} Examine specific roadmaps like Ethereum's 
+    Danksharding, the Cosmos-based Celestia model, and how early adopters 
+    integrate DA at scale.
+\end{itemize}
+
+\paragraph{3.5 Open Challenges and Future Directions (2--3 pages)}
+\begin{itemize}
+    \item \textbf{Scalability vs.\ Decentralization:} Analysis of network resource 
+    demands, node incentives, and potential risk of centralization.
+    \item \textbf{Quantum-Resistant DA:} Investigation into post-quantum cryptographic 
+    primitives that might secure DA in the long term.
+    \item \textbf{Regulatory and Policy Implications:} Discuss how data retention or 
+    privacy laws intersect with blockchain DA, plus possible compliance frameworks.
+    \item \textbf{Novel Cryptographic Primitives:} Consider advanced accumulators, 
+    STARKs, or new polynomial schemes for improved performance \citep{liux2023}.
+\end{itemize}
+
+\bigskip
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
