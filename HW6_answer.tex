@@ -1,0 +1,154 @@
+\documentclass{article}
+\usepackage{graphicx,fancyhdr,amsmath,amssymb,amsthm,subfig,url,hyperref}
+\usepackage[margin=1in]{geometry}
+
+%----------------------- Macros and Definitions --------------------------
+
+%%% FILL THIS OUT
+\newcommand{\studentname}{Jonah Aden and Mihir Uberoi}
+\newcommand{\suid}{jka2154 and 	mu2304}
+\newcommand{\exerciseset}{Homework 6}
+\newcommand{\coursename}{COMS 4995 Science of Blockchain}
+%%% END
+
+\renewcommand{\theenumi}{\arabic{enumi}}
+
+\fancypagestyle{plain}{}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[RO,LE]{\sffamily\bfseries\large Columbia University}
+\fancyhead[LO,RE]{\sffamily\bfseries\large \coursename}
+\fancyfoot[LO,RE]{\sffamily\bfseries\large \studentname: \suid}
+\fancyfoot[RO,LE]{\sffamily\bfseries\thepage}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+
+\graphicspath{{figures/}}
+
+%-------------------------------- Title ----------------------------------
+
+\title{\coursename \exerciseset}
+\author{\studentname \qquad UNI: \suid}
+\date{}
+
+\begin{document}
+\maketitle
+
+%-------------------------------- Problems ----------------------------------
+
+\section*{Problem 1}
+
+In the context of optimistic rollups, we've seen in lecture that consistency and liveness of the L1 doesn't fully rule out the possibility of a byzantine sequencer finalizing a false state root on the L1. The reason for this was bribery attacks, in which the byzantine sequencer pays the L1 validators a sufficiently high amount to exclude the transactions necessary to challenge the sequencer's purported state root and complete the ensuing dispute resolution protocol. The goal of this question is to obtain a better understanding of the budget a challenger needs in order to successfully complete the dispute resolution protocol without being censored by the byzantine sequencer. We use the same abstraction of the problem that was mentioned in lecture: over the course of $T$ rounds (the game duration), the challenger must be able to successfully include a transaction on chain at least $N$ times, where $N$ is the number of rounds in the bisection game. For the purposes of this question, let us simplify transaction inclusion in the L1, and assume that in every round $i \in [T]$, each block consists of exactly one transaction. In each round, Alice and Charlie bid for the right to include a transaction in the next block in the following way. Denote by $A$ Alice's total budget, and by $C$ Charlie's total budget.
+
+\begin{enumerate}
+\item Charlie bids $b$, where $b \leq C$.
+
+\item Alice observes $b$, after which she bids $b'$, where $b' \leq A$.
+
+\item If $b' \geq b$, Alice wins the round. Otherwise, Charlie wins the round. (We imagine that the validator in charge of transaction inclusion for this round always goes with the higher bid, and collects the winning bid as payment for inclusion.)
+
+\item The winner's budget is deducted by an amount equal to their bid.
+\end{enumerate}
+
+We say that Charlie wins the game if he won at least $N$ of the rounds.
+
+\begin{enumerate}
+\item Assume that $\frac{T-N+1}{N} \cdot C > A$. Consider the following strategy by Charlie: Each round, bid $b = \frac{C}{N}$. Prove that this is a winning strategy for Charlie. That is, no matter how Alice bids, Charlie is guaranteed to win the game.
+
+\textbf{Answer:}
+
+\begin{itemize}
+\item Suppose, for contradiction, that Charlie does not achieve $N$ wins.
+  \begin{itemize}
+  \item That would mean Charlie wins at most $(N-1)$ times
+  \item Since there are $T$ total rounds, Alice would then have to win at least $(T - (N - 1)) = (T - N + 1)$ rounds
+  \end{itemize}
+\item In each round, Charlie's bid is $\frac{C}{N}$
+  \begin{itemize}
+  \item For Alice to win a round, she must bid $\geq \frac{C}{N}$
+  \item To win $(T - N + 1)$ rounds, Alice must spend at least $(T - N + 1) \times \frac{C}{N}$
+  \end{itemize}
+\item By our assumption, $(T - N + 1) \times \frac{C}{N} > A$.
+  \begin{itemize}
+  \item $A$ is the total budget available to Alice
+  \item Alice cannot afford to place $(T - N + 1)$ bets of size $\geq \frac{C}{N}$
+  \end{itemize}
+\item It is impossible for Alice to prevent Charlie from winning $N$ rounds. Charlie's bid of $\frac{C}{N}$ ensures at least $N$ wins.
+\end{itemize}
+
+\item Assume that $\frac{T-N+1}{N} \cdot C \leq A$. Prove that Alice has a winning strategy (and explicitly give such a strategy). That is, when Alice follows this strategy, she is guaranteed to win the game, no matter what Charlie does.
+
+\textbf{Answer:}
+
+\begin{itemize}
+\item Strategy
+  \begin{itemize}
+  \item Let $M = T - N + 1$ and $L = \frac{C}{N}$
+  \item Alice should keep track of how many times she has outbid Charlie so far; call this number $k$ (initially $k = 0$).
+  \item In each round, let Charlie bid $b$. If $b > L$ or $k = M$ (Alice has already outbid him $M$ times) then Alice should not outbid; let Charlie have this round.
+  \item Otherwise, bid $b' = L$ (or $b + \epsilon$, just enough to beat $b$). Alice wins this round and $k$ increases by 1.
+  \item Because $M \times L = (T - N + 1) \frac{C}{N} \leq A$, Alice will never run out of budget following this plan.
+  \end{itemize}
+\item Proof
+  \begin{itemize}
+  \item By design, Alice forces a win in exactly those rounds where Charlie's bid is $\leq L$ until she has done this $M$ times. Hence she ends up with at least $M$ wins.
+  \item Since there are $T$ total rounds, if Alice has already secured $M$ wins, it follows that Charlie can win at most $T - M = T - (T - N + 1) = N - 1$ rounds
+  \item Hence, no matter how Charlie bids, Alice's strategy ensures he does not reach $N$ wins.
+  \end{itemize}
+\end{itemize}
+
+\end{enumerate}
+
+
+\section*{Problem 2}
+
+Recall from lecture that in the "classic" rollup architecture, the sequencer periodically posts batches of rollup transactions along with a new state commitment/root (reflecting any consequences of executing those transactions). In this question, we explore deviations from this architecture and the consequences for security against various types of faults. In all cases, explain your answers.
+
+\begin{enumerate}
+\item Suppose that the sequencer only posts the state root, and provides no additional information about the transactions or the state. Consider a sequencer that behaves honestly for some time and then crashes. Can another sequencer pick up where they left off and continue to post correct state roots to the L1 rollup contract in the future?
+
+\textbf{Answer:}
+
+\begin{itemize}
+\item No, a new sequencer cannot continue posting correct state roots.
+\item State roots alone are commitments to the state but don't reveal the underlying data.
+\item Due to hash function preimage resistance, it's infeasible to recover the state from just the root.
+\item Without knowledge of the current state, a new sequencer cannot correctly process new transactions.
+\end{itemize}
+
+\item Suppose that the sequencer only posts the state root, and provides no additional information about the transactions or the state. If the sequencer is byzantine and posts a fraudulent state root, can a challenger detect and prove to others that such a fault took place?
+
+\textbf{Answer:}
+
+\begin{itemize}
+\item No, fraud detection and proof are impossible in this scenario.
+\item To detect fraud, a challenger would need to know the previous state and which transactions were executed.
+\item With only state roots published, there's no basis for verifying the correctness of state transitions.
+\item This defeats the purpose of optimistic rollups, as challenges require transparency that isn't provided.
+\end{itemize}
+
+\item Suppose that along with the state root, the sequencer publishes "state diffs," meaning the alleged changes to the rollup state caused by executing the current batch of transactions. (E.g., notifications of the form "the 7th word of persistent memory associated with address $a$ now has the value $x$.") Consider a sequencer that behaves honestly for some time and then crashes. Can another sequencer pick up where they left off and continue to post correct state roots to the L1 rollup contract in the future?
+
+\textbf{Answer:}
+
+\begin{itemize}
+\item Yes, a new sequencer can continue operation in this case.
+\item State diffs provide sufficient information to reconstruct the complete state.
+\item By starting from genesis (or a checkpoint) and applying all diffs sequentially, the current state can be accurately determined.
+\item This enables a replacement sequencer to process new transactions correctly from the last valid state.
+\end{itemize}
+
+\item Suppose that along with the state root, the sequencer publishes "state diffs," as above. If the sequencer is byzantine and posts a fraudulent state root, can a challenger detect and prove to others that such a fault took place?
+
+\textbf{Answer:}
+
+\begin{itemize}
+\item Yes, fraud can be detected and proven with state diffs available.
+\item A challenger can start with the previous valid state, apply the published diffs, and compute the correct state root.
+\item If this computed root differs from the sequencer's published root, fraud is detected.
+\item The challenger can provide a proof showing that applying the published diffs to the previous state produces a different root than claimed.
+\end{itemize}
+
+\end{enumerate}
+
+\end{document}
