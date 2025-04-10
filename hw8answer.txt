@@ -1,0 +1,89 @@
+COMS 4995 Science of Blockchain Columbia University
+COMS 4995 (Science of Blockchain) Homework Set 7
+Mihir Uberoi and Jonah Aden UNI: mu2304 and jka2154
+April 10, 2025
+Problem 1
+1)
+Optimistic Rollup Case: Yes
+• Because there is no built-in validity proof, watchers/validators must be able to re-execute the transactions to check correctness
+• Re-execution requires the full transaction data–including signatures–so that a watcher can verify
+whether each transaction was valid
+• If a watcher finds an invalid transaction, they can submit a fraud proof during the challenge window.
+Validity (ZK) Rollup Case: No
+• The rollup operator supplies a zero-knowledge (or other succinct) proof asserting that all included
+transactions are valid.
+• That proof "stands in" for manually verifying each signature.
+• Thus, it is not necessary to post all signatures on chain; the proof suffices to guarantee correctness.
+Problem 2
+1) Yes
+• Yes, but only if the necessary data (transactions or state) is actually available to the new sequencer
+(and the rest of the network).
+• A ZK Proof Π of the form "I know valid transactions that produce state root r" does not give anyone
+else the underlying transactions or resulting state data–only the assurance that such a sequence exists.
+• To produce the next state root (and its proof), a new sequencer must know what the current rollup
+state actually is (e.g., user balances, contract storage, etc.). If the old sequencer is the only entity who
+actually had that state/transaction data and now disappears, then nobody else can generate the next
+valid SNARK.
+2) No
+• In a validity (ZK) rollup, every state root update must come with a valid zero-knowledge proof of the
+statement "There exists a sequence of valid transactions whose post-execution root is r"
+• If the claimed new state root is actually wrong, the sequencer would have to forge a ZK proof (ie,
+break the underlying cryptographic assumptions) to get it accepted by Layer 1.
+• Because the L1 contract verifies the ZK proof on-chain (or via a trusted verifier), the sequencer cannot
+simply post a "fraudulent" root with an invalid proof. It will be rejected.
+Mihir Uberoi and Jonah Aden: UNI 1
+COMS 4995 Science of Blockchain Columbia University
+• Thus, unlike an optimistic rollup (where watchers submit fraud proofs after-the-fact), a ZK rollup
+"self-enforces" correctness cryptographically at submission time.
+3) Yes
+• Yes, provided the state diffs truly let observers reconstruct the new state.
+• A ZK proof Π of the form "I know valid transactions that cause exactly these diffs and produce state
+root r" ensures that the posted diffs "match" the claimed new state root.
+• As long as those diffs are available to the public (so that anyone can apply them to the previous state),
+any honest party can figure out the new state. If the original sequencer disappears, a new sequencer
+can continue by posting further diffs and a new proof for each subsequent update.
+4) Yes
+• In a validity (ZK) rollup, each new root must come with a valid SNARK attesting that there exist
+valid transactions whose execution leads to (1) those specific diffs and (2) the claimed root.
+• If the sequencer tries to commit an incorrect root (or bogus diffs), they must forge the proof–ie, break
+the underlying cryptography–or else the L1 verifier will reject it automatically.
+• In other words, there is no need for an "ex post" fraud-proof game as in an optimistic rollup. The L1
+contract's ZK-proof verification immediately catches incorrect updates.
+Problem 3
+A challenger only needs a budget on the order of N
+T × S to guarantee that N of its first transactions will be
+included within T blocks, no matter how the sequencer tries to bribe block proposers.
+• The sequencer has budget S and must distribute it over T blocks – say it bribes block i with an amount
+si
+. Hence, s1 + s2 + ... + sT = S
+• The challenger only needs N blocks to include in its transactions. Let si1, ..., sin be the smallest bribes
+among s1, ..., sT . In block ij , the challenger must outbid sij
+to ensure the block proposer includes the
+challenger's transaction rather than the sequencer's. In integer terms, the challenger can pay (sij + 1).
+• Because s1 +s2 +...+sT = S, the average bribe per block is S
+T
+. By choosing the blocks with the lowest
+bribes, each sij
+is at most around this average. A simple upper bound is: si1 + si2 + · · · + siN ≤
+N
+T
+S
+• Summing up over the chosen N blocks, the challenger's cost is roughly PN
+j=1
+sij + 1
+≤
+PN
+j=1 sij +
+N ≤
+N
+T
+S + N
+• Ignoring the +N term (which is small if S is large or T is large), you get the rough requirement: C ≥
+N
+T
+S.
+In other words, if the challenger's budget C is at least on the order of N
+T
+S it can "concentrate" its
+funds on just N blocks and always outbid the sequencer in those blocks.
+Mihir Uberoi and Jonah Aden: UNI 
